@@ -42,7 +42,7 @@
     <!-------------------------------------------------|  GREETINGS  |-------------------------------------------------------------------->
     <div class="container mb-0">
       {% if connection_problem %}
-      <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif;">
+      <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif; position: absolute;">
         <strong>An error occurred!</strong> I am unable to connect to the internet.
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -50,7 +50,7 @@
       </div>
       {% endif %}
       {% if end_result %}
-      <div class="alert alert-success alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif;">
+      <div class="alert alert-success alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif; position: absolute;">
         <strong>All done!</strong> Please check your results below.
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
