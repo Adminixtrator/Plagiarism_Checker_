@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="jpg/png" href="https://res.cloudinary.com/adminixtrator/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1580859216/87-872184_kommentit-eye-and-magnifying-glass.jpg">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Cabin|Caveat|Courgette|Cuprum|Josefin+Sans|Satisfy&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC&display=swap" rel="stylesheet">
+    <style>
+        .display-4,.p{
+            font-family: 'Caveat', cursive;
+        }
+        .btn btn-success btn-md,.btn btn-success,p,.lead,input,a,button,.b{
+            font-family: 'Josefin Sans', sans-serif;
+        }
+        body,.span{
+            background-color: ghostwhite;
+            color: black;
+        }
+        #text{
+            border: 2px solid #0fbcf9;
+            border-radius: 7px;
+            background-color: transparent;
+            color: #fff;
+            font-size: 0.8em;
+            font-family: 'Josefin Sans', sans-serif;
+        }
+        span,.card-body{
+            color: #fff;
+            font-size: 0.9em;
+            font-family: 'Josefin Sans', sans-serif;
+        }
+        .p,.card-title{
+            font-size: 1.4em; color: white;
+        }
+    </style>
+    <title>Plagiarism Checker</title>
+</head>
+<body>
+    <!-------------------------------------------------|  GREETINGS  |-------------------------------------------------------------------->
+    <div class="container mb-0">
+      {% if connection_problem %}
+      <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif;">
+        <strong>An error occurred!</strong> I am unable to connect to the internet.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endif %}
+      {% if end_result %}
+      <div class="alert alert-success alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif;">
+        <strong>All done!</strong> Please check your results below.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endif %}
+    <div class="jumbotron mt-4 pt-6 pb-4 mb-2 bg-warning rounded-bottom">
+        <h1 class="display-4" style="font-size: 4.3em;">Plagiarism Checker</h1>
+        <p class="lead" style="font-family: 'Amatic SC', cursive; letter-spacing: 3px; font-weight: bold;">“When a thing has been said and said well, have no scruple. Take it and copy it.” <b class="b"> ― Anatole France</b></p>
+        <hr class="my-4"> 
+        <p>Upload a file or copy a text between <b>30</b> to <b>100</b> words in length and hit the <b>search</b> button.</p>
+      </div>
+      <!-------------------------------------------------|  FILE & TEXT  |-------------------------------------------------------------------->
+      <div class="row mb-4 mt-4">
+        <div class="col-sm-6 mb-2">
+          <div class="card border-primary bg-dark rounded-bottom pb-5">
+            <div class="card-body">
+              <h5 class="card-title">File</h5>
+              <form method="POST" class="col-sm-6" enctype="multipart/form-data" action="/file"><input type="file" name="myfile" style="color: #0fbcf9; padding: 2px;" id="myfile" style="color: #2f3640;" id="file-uploaded">
+                <button type="submit" class="btn btn-transparent" style="color: #0fbcf9; border: 1px solid #0fbcf9; margin-top: 1.5em;  margin-bottom: 4%;">Search</button></form>
+              <br><br><span class="p" style="font-family: 'Josefin Sans', sans-serif;">Supports <span class="text-warning">.doc</span> <span class="text-success">.pdf</span> <span class="text-danger">.odt</span> <span class="text-warning">.docx</span> <span class="text-success">.txt</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 w-100">
+          <div class="card border-primary bg-dark">
+            <div class="card-body" style="min-width: 100%;">
+              <h5 class="card-title">Text</h5>
+              <form method="POST" enctype="multipart/form-data" class="col-sm-12" action="/text"><textarea rows="10" cols="120" id="text" class="col-sm-6 col-md-12 col-lg-12" name="text" placeholder="Please enter your text here.." style="padding: 5px;">{{ text }}</textarea>
+                <!--  <a href="/txt">submit</a> --><br><button type="submit" class="btn btn-transparent" style="color: #0fbcf9; border: 1px solid #0fbcf9; margin-top: 1.5em;">Search</button></form>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-------------------------------------------------|  END RESULT  |-------------------------------------------------------------------->
+      {% if end_result or probables or comments or frequency %}
+      <div class="jumbotron bg-primary mb-6">
+        <div class="dotted-container" style="border-radius: 10px; margin-top: 2em;"><p style="font-family: 'Courier New', Courier, monospace; font-size: 1.8em; color: white; font-family: 'Caveat', cursive;"><b>Search Results:</b></p>
+        <p class = "text-warning" style="color: white; font-family: 'Josefin Sans', sans-serif; font-size: 0.9em;"> Our systems detected a lot of plagiarised texts from this site:</p>
+      <p style="margin: 1em; border: 1px solid #0fbcf9; padding: 7px; border-radius: 7px; color: white; font-size: 0.8em;">{{ end_result }}</p></div>
+      <p class="p"><b>Probables: </b></p>
+
+      <p>
+        <a class="btn btn-success" data-toggle="collapse" href="#multiCollapseExample5" role="button" aria-expanded="false" aria-controls="multiCollapseExample5">View</a>
+      </p>  
+      <div  class="row mt-4 mb-4 bg-transparent">
+        <div class="col">
+          <div class="collapse multi-collapse" id="multiCollapseExample5">
+            <div class="card card-body bg-transparent">
+                
+                <div class="row" id="row" style="margin: 1em; border: 1px solid #0fbcf9; padding: 7px; border-radius: 7px; color: white; font-size: 0.8em;">
+         <!--           {% if probables %}
+
+                    {% for all in probables %}
+                    
+                    {% print(all) %}
+
+                    {% endfor %}
+
+                    {% endif %}
+         -->
+                  {{ probables }}
+                    
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <p class="p"><b>Comments: </b></p><span>{{ comments }}</span><p class="p"><b>Frequency: </b></p><span>{{ frequency }}</span>
+      {% endif %}
+      {% if error_message or too_long %}
+      <div class="jumbotron bg-primary mb-6">
+        <div class="dotted-container" style="border-radius: 10px; margin-top: 2em;"><p style="font-family: 'Courier New', Courier, monospace; font-size: 1.8em; color: white; font-family: 'Caveat', cursive;"><b>Text Length</b></p>
+      {% if error_message %}
+          <span>{{ error_message }}</span>
+      {% endif %}
+      {% if too_long %}
+      <br><span>Click continue if you want to select the first <b>100</b> words of your text</span><br>
+      <form action="/alt" method="POST" enctype="multipart/form-data">
+        <textarea hidden name="hundred">{{ alternative }}</textarea>
+      <br><button type="submit" class="btn btn-warning btn-md">Continue</button>
+      </form>
+      {% endif %}
+      </div>
+      </div>
+      {% endif %}
+      
+        </div> 
+    </div>
+
+
+    <footer class="container mt-6 mb-4 pt-6" style="text-align: center; font-size: 0.8em; margin-top: 8em;">
+        <a href="https://twitter.com/adminixtrator" target="blank"><img src="https://res.cloudinary.com/adminixtrator/image/upload/c_scale,w_30/v1580846986/twitter.jpg" alt="Twitter"></a>  <a href="https://linkedin.com/in/adminixtrator" target="blank"><img src="https://res.cloudinary.com/adminixtrator/image/upload/c_scale,w_20/v1580846977/linkedin.png" alt="Github"></a>  <a href="https://github.com/adminixtrator" target="blank"><img src="https://res.cloudinary.com/adminixtrator/image/upload/c_scale,w_35/v1580865391/github.png" alt="linkedIn"></a><br>
+        <span class="span">&copy;2020 ADMINIXTRATOR</span>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
