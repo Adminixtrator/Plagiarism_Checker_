@@ -1,0 +1,38 @@
+.nav{
+    width: 100%;
+    background-color: #95a5a6;
+}
+
+.nav h1{
+    font-size: 30px;
+    font-weight: 10px;
+}
+
+    .box{
+    height: 250px;
+}
+
+.line{
+    height: 5px;
+    color: blue;
+}
+
+.lbox{
+height: 350px;
+}
+
+.custom-file , .input-group{
+    width: 280px;
+}
+
+.btn{
+    width: 200px;
+}
+
+.b{
+    background-color:#ecf0f1;
+}
+i{
+    font-size: 25px;
+}
+    
