@@ -10,8 +10,6 @@ import textract as tt
 extractor = URLExtract()
 my_api_key = "AIzaSyCaugQenN9PpH5I6agQTcFlkf8hbyAEOKw"
 my_cse_id = "000757437883487112859:wtcjp5mwqmu"
-regex = re.compile(r'\w+\://\w+\.\w+')
-gool = re.compile(r'\w+\.\w+')
 
 app = Flask(__name__, template_folder = './')
 
@@ -41,13 +39,6 @@ def google_search(search_term, api_key, cse_id, **kwargs):
           return res['items']
     except KeyError:
         return ['No match', 'No match', 'No match']
-
-#---------------------------------------------------------------------
-#txt = input('Please enter or paste text below:\n')	#file
-#---------------------------------------------------------------------
-# Function to open txt
-def open_txt(filename,content):
-     a = open(filename,'r');c = a.read();a.close();content = c
 
 #---------------------------------------------------------------------
 # Homepage
@@ -156,7 +147,7 @@ def filehandle():
                 end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
                 frequency = '0%'	#-----------------------------exception 
 
-            if probables == '' or probables == ' ':
+            if probables == '' or probables == ' ' or allowed_images(probables):
                 probables = 'None currently available'
             os.remove('./'+filename)
 
@@ -253,7 +244,7 @@ def texthandle():
             end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
             frequency = '0%'	#-----------------------------exception 
 
-        if probables == '' or probables == ' ':
+        if probables == '' or probables == ' ' or allowed_images(probables):
             probables = 'None currently available'
 
         return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)

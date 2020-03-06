@@ -1,0 +1,5 @@
+flask
+urlextract
+textract
+google-api-python-client
+werkzeug
