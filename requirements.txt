@@ -3,3 +3,4 @@ urlextract
 textract
 google-api-python-client
 werkzeug
+gunicorn
