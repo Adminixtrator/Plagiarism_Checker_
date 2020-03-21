@@ -10,6 +10,7 @@ import textract as tt
 extractor = URLExtract()
 my_api_key = "AIzaSyCaugQenN9PpH5I6agQTcFlkf8hbyAEOKw"
 my_cse_id = "000757437883487112859:wtcjp5mwqmu"
+regex = re.compile('http[s]?://[a-zA-Z]+.[a-zA-Z]+.[a-zA-Z]+')
 
 app = Flask(__name__, template_folder = './')
 
@@ -40,10 +41,16 @@ def google_search(search_term, api_key, cse_id, **kwargs):
     except KeyError:
         return ['No match', 'No match', 'No match']
 
+def repeat(text):
+    return regex.findall(text)
+
 #---------------------------------------------------------------------
 # Homepage
 @app.route('/')
 def homepage():
+    '''for junk_files in os.listdir('./'):
+        if allowed_files(junk_files) and junk_files != 'requirements.txt':
+            os.remove('./'+junk_files)'''
     return render_template('home.html')
 
 # Handler for file upload -----------------------------
@@ -101,7 +108,11 @@ def filehandle():
                 return render_template('home.html', connection_problem=connection_problem)
             # Result handler
             try:
-                result1 = google_search(txt1, my_api_key, my_cse_id, num=2);result2 = google_search(txt2, my_api_key, my_cse_id, num=2)
+                try:
+                    result1 = google_search(txt1, my_api_key, my_cse_id, num=2);result2 = google_search(txt2, my_api_key, my_cse_id, num=2)
+                except:
+                    connection_problem='No internet connection'
+                    return render_template('home.html', connection_problem=connection_problem)
                 gen1 = list(result1);gen2 = list(result2);gen = gen1+gen2
                 # Getting things ready
                 end_result1 = [];end_result2 = []
@@ -119,6 +130,7 @@ def filehandle():
                 # Getting things ready
                 end_result = []
                 probables = []
+                probables_01 = []
                 for url in extractor.gen_urls(str(gen[0])):
                     end_result.append(url)
 
@@ -144,9 +156,17 @@ def filehandle():
             #-------------------------------------------------------------------------------------------------------------------------------------------------frequency $ comments   ~~~~~~Done!
             try:
                 for guys in end_result:
-                    if not allowed_images(guys) and guys != end_result[2] and len(guys) >= 10:
+                    if repeat(guys) != repeat(end_result[2]):
                         probables.append(guys)
+                        probables_01.append(guys)
                 probables = probables[0]
+                try: 
+                    for all in probables_01:
+                        if not allowed_images(all):
+                            probables_01 = all
+                            break
+                except:
+                    probables_01 = probables
             except:
                 probables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
             # Check for valid result
@@ -157,11 +177,17 @@ def filehandle():
                 end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
                 frequency = '0%'	#-----------------------------exception 
 
-            if probables == '' or probables == ' ':
+            if probables == '' or probables == ' ' or allowed_files(probables) or allowed_files(probables_01):
                 probables = 'None currently available'
-            os.remove('./'+filename)
-            
-            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+                return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+            elif probables == probables_01:
+                probables = probables
+                os.remove('./'+filename)
+                return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+            else:
+                os.remove('./'+filename)
+                return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, end_result=end_result)
+
         
         else:
             return render_template('home.html', end_result="An error occured! Please check your file type and try again.")
@@ -201,7 +227,11 @@ def texthandle():
             return render_template('home.html', connection_problem=connection_problem)
         # Result handler
         try:
-            result1 = google_search(txt1, my_api_key, my_cse_id, num=2);result2 = google_search(txt2, my_api_key, my_cse_id, num=2)
+            try:
+                result1 = google_search(txt1, my_api_key, my_cse_id, num=2);result2 = google_search(txt2, my_api_key, my_cse_id, num=2)
+            except:
+                connection_problem='No internet connection'
+                return render_template('home.html', connection_problem=connection_problem)
             gen1 = list(result1);gen2 = list(result2); gen=gen1+gen2
             # Getting things ready
             end_result1 = [];end_result2 = []
@@ -214,11 +244,16 @@ def texthandle():
             # End result
             end_result = end_result1+end_result2
         except:
-            result = google_search(txt, my_api_key, my_cse_id, num=2)
+            try:
+                result = google_search(txt, my_api_key, my_cse_id, num=2)
+            except:
+                connection_problem='No internet connection'
+                return render_template('home.html', connection_problem=connection_problem)
             gen = list(result)
             # Getting things ready
             end_result = []
             probables = []
+            probables_01 = []
             for url in extractor.gen_urls(str(gen[0])):
                 end_result.append(url)
 
@@ -244,12 +279,22 @@ def texthandle():
         #-------------------------------------------------------------------------------------------------------------------------------------------------frequency $ comments   ~~~~~~Done!
         try:
             for guys in end_result:
-                if not allowed_images(guys) and guys != end_result[2] and len(guys) >= 10:
+                if repeat(guys) != repeat(end_result[2]):
                     probables.append(guys)
+                    probables_01.append(guys)
             probables = probables[0]
+            try:
+                for all in probables_01:
+                    if not allowed_images(all):
+                        probables_01 = all
+                        break
+            except:
+                probables_01 = probables
         except:
             probables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
         # Check for valid result
+        for i in end_result:
+            print(i)
         try:
             end_result = end_result[2]
             print(end_result)	#-------------------------------------------------------------------------------------------------------------------------end_result     ~~~~~~~~Done!
@@ -257,10 +302,19 @@ def texthandle():
             end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
             frequency = '0%'	#-----------------------------exception 
 
-        if probables == '' or probables == ' ' or allowed_images(probables):
+        if allowed_images(probables):
+            probables = probables_01
+        elif allowed_images(probables_01):
+            probables_01 = probables
+            
+        if probables == '' or probables == ' ':
             probables = 'None currently available'
-
-        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, probables_02=probables_02, end_result=end_result)
+            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+        elif probables == probables_01:
+            probables = probables
+            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+        else:
+            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, end_result=end_result)
 
     return render_template('home.html')
     
@@ -289,11 +343,17 @@ def hundred():
         return render_template('home.html', connection_problem=connection_problem)
     # Result handler
     try:
-        result1 = google_search(txt1, my_api_key, my_cse_id, num=2);result2 = google_search(txt2, my_api_key, my_cse_id, num=2)
+        try:
+            result1 = google_search(txt1, my_api_key, my_cse_id, num=2);result2 = google_search(txt2, my_api_key, my_cse_id, num=2)
+        except:
+            connection_problem='No internet connection'
+            return render_template('home.html', connection_problem=connection_problem)
         gen1 = list(result1);gen2 = list(result2); gen=gen1+gen2
         # Getting things ready
         end_result1 = [];end_result2 = []
         probables = []
+        probables_01 = []
+
         for url in extractor.gen_urls(str(gen1[0])):
             end_result1.append(url)
             
@@ -327,9 +387,16 @@ def hundred():
     #-------------------------------------------------------------------------------------------------------------------------------------------------frequency $ comments   ~~~~~~Done!
     try:
         for guys in end_result:
-            if not allowed_images(guys) and guys != end_result[2] and len(guys) >= 10:
+            if repeat(guys) != repeat(end_result[2]):
                 probables.append(guys)
+                probables_01.append(guys)
         probables = probables[0]
+        try:
+            for all in probables_01:
+                if not allowed_images(all):
+                    probables_01 = all
+        except:
+            probables_01 = probables
     except:
         probables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
     # Check for valid result
@@ -340,10 +407,13 @@ def hundred():
         end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
         frequency = '0%'	#-----------------------------exception 
 
-    if probables == '' or probables == ' ':
+    if probables == '' or probables == ' ' or allowed_images(probables) or allowed_images(probables_01):
         probables = 'None currently available'
-
-    return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, probables_02=probables_02, end_result=end_result)
+        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+    elif probables == probables_01:
+        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+    else:
+        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, end_result=end_result)
 
 if __name__ == '__main__':
     app.run()
