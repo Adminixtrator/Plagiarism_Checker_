@@ -16,7 +16,7 @@ app = Flask(__name__, template_folder = './')
 
 #---------------------------------------------------------------------
 # allow specific files
-ALLOWED_FILES = set(['pdf', 'docx', 'odt', 'txt', 'html', 'doc'])
+ALLOWED_FILES = set(['pdf', 'docx', 'odt', 'txt', 'doc'])
 
 def allowed_files(filename):
     return '.' in filename and \
