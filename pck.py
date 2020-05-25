@@ -10,7 +10,7 @@ import textract as tt
 extractor = URLExtract()
 my_api_key = "AIzaSyCaugQenN9PpH5I6agQTcFlkf8hbyAEOKw"
 my_cse_id = "000757437883487112859:wtcjp5mwqmu"
-regex = re.compile('http[s]?://[a-zA-Z]+.[a-zA-Z]+.[a-zA-Z]+')
+regex = re.compile('http[s]?://[a-zA-Z]+.[a-zA-Z]+.[a-zA-Z]+/')
 
 app = Flask(__name__, template_folder = './')
 
@@ -42,7 +42,7 @@ def google_search(search_term, api_key, cse_id, **kwargs):
         return ['No match', 'No match', 'No match']
 
 def repeat(text):
-    return regex.findall(text)
+    return regex.match(text)
 
 #---------------------------------------------------------------------
 # Homepage
@@ -71,7 +71,9 @@ def filehandle():
             filename = secure_filename(myfile.filename)
             myfile.save(os.path.join('./',filename))
             # read the file
-            txt = tt.process(filename)
+            txt = tt.process(filename).decode('utf-8')
+            txt = [line.replace('\t', ' ') for line in txt.split('\n') if line]
+            txt = ' '.join(txt)
             '''try:
                 txt = tt.process('filename')
             except:
@@ -82,8 +84,7 @@ def filehandle():
                 # Handler length of words
             if len(str(txt).split()[0::]) > 100:
                 error_message='Please reduce the length of text [30 - 100]'
-                too_long=''
-
+                too_long=' '
                 os.remove('./'+filename)
                 return render_template('home.html', error_message=error_message, too_long=too_long, alternative=alternative)
             elif len(str(txt).split()[0::]) < 30:
@@ -130,7 +131,6 @@ def filehandle():
                 # Getting things ready
                 end_result = []
                 probables = []
-                probables_01 = []
                 for url in extractor.gen_urls(str(gen[0])):
                     end_result.append(url)
 
@@ -139,54 +139,43 @@ def filehandle():
                 if end_result[2] == all:
                     frequency=frequency+1   
             if frequency == 1: 
-                frequency = '20%'
+                frequency = 20
                 comments = "This text doesn't seem to be plagirised.\nYou can try entering a longer length of text."
             elif frequency == 2:
-                frequency = '40%'
+                frequency = 40
                 comments = "There is a high possibility of this text being plagiarised"
             elif frequency == 3:
-                frequency = '60%'
+                frequency = 60
                 comments = "Our system detected a lot of plagiarised texts in your content"            
             elif frequency == 4:
-                frequency = '80%'
+                frequency = 80
                 comments = "The text has most of it's contents plagiarised"
             elif frequency >= 5:
-                frequency = '100%'
+                frequency = 100
                 comments = "Warning!! This text is plagiarised."
             #-------------------------------------------------------------------------------------------------------------------------------------------------frequency $ comments   ~~~~~~Done!
-            try:
-                for guys in end_result:
-                    if repeat(guys) != repeat(end_result[2]):
-                        probables.append(guys)
-                        probables_01.append(guys)
-                probables = probables[0]
-                try: 
-                    for all in probables_01:
-                        if not allowed_images(all):
-                            probables_01 = all
-                            break
-                except:
-                    probables_01 = probables
-            except:
-                probables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
+            probables = []
+            for guys in end_result:
+                if not allowed_images(guys) and repeat(guys) != repeat(end_result[2]) and repeat(guys) not in probables:
+                    probables.append(guys)
+                    iprobables = None
+                else:
+                    iprobables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
             # Check for valid result
             try:
                 end_result = end_result[2]
                 print(end_result)	#-------------------------------------------------------------------------------------------------------------------------end_result     ~~~~~~~~Done!
             except:
                 end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
-                frequency = '0%'	#-----------------------------exception 
+                frequency = 0	#-----------------------------exception 
 
-            if probables == '' or probables == ' ' or allowed_files(probables) or allowed_files(probables_01):
+            if probables == '' or probables == ' ' or allowed_files(probables):
                 probables = 'None currently available'
-                return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
-            elif probables == probables_01:
-                probables = probables
                 os.remove('./'+filename)
-                return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+                return render_template('home.html', frequency=frequency, comments=comments, iprobables=probables, end_result=end_result)
             else:
                 os.remove('./'+filename)
-                return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, end_result=end_result)
+                return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
 
         
         else:
@@ -253,7 +242,6 @@ def texthandle():
             # Getting things ready
             end_result = []
             probables = []
-            probables_01 = []
             for url in extractor.gen_urls(str(gen[0])):
                 end_result.append(url)
 
@@ -262,59 +250,42 @@ def texthandle():
             if end_result[2] == all:
                 frequency=frequency+1   
         if frequency == 1: 
-            frequency = '20%'
+            frequency = 20
             comments = "This text doesn't seem to be plagirised.\nYou can try entering a longer length of text."
         elif frequency == 2:
-            frequency = '40%'
+            frequency = 40
             comments = "There is a high possibility of this text being plagiarised"
         elif frequency == 3:
-            frequency = '60%'
+            frequency = 60
             comments = "Our system detected a lot of plagiarised texts in your content"            
         elif frequency == 4:
-            frequency = '80%'
+            frequency = 80
             comments = "The text has most of it's contents plagiarised"
         elif frequency >= 5:
-            frequency = '100%'
+            frequency = 100
             comments = "Warning!! This text is plagiarised."
         #-------------------------------------------------------------------------------------------------------------------------------------------------frequency $ comments   ~~~~~~Done!
-        try:
-            for guys in end_result:
-                if repeat(guys) != repeat(end_result[2]):
-                    probables.append(guys)
-                    probables_01.append(guys)
-            probables = probables[0]
-            try:
-                for all in probables_01:
-                    if not allowed_images(all):
-                        probables_01 = all
-                        break
-            except:
-                probables_01 = probables
-        except:
-            probables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
+        probables = []
+        for guys in end_result:
+            if not allowed_images(guys) and repeat(guys) != repeat(end_result[2]) and repeat(guys) not in probables:
+                probables.append(guys)
+                iprobables = None
+            else:
+                iprobables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
         # Check for valid result
-        for i in end_result:
-            print(i)
         try:
             end_result = end_result[2]
-            print(end_result)	#-------------------------------------------------------------------------------------------------------------------------end_result     ~~~~~~~~Done!
+    	#-------------------------------------------------------------------------------------------------------------------------end_result     ~~~~~~~~Done!
         except:
             end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
-            frequency = '0%'	#-----------------------------exception 
-
-        if allowed_images(probables):
-            probables = probables_01
-        elif allowed_images(probables_01):
-            probables_01 = probables
+            frequency = 0
+            iprobables = ' '	#-----------------------------exception 
             
-        if probables == '' or probables == ' ':
-            probables = 'None currently available'
-            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
-        elif probables == probables_01:
-            probables = probables
-            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+        if iprobables == '' or iprobables == ' ' or len(probables) == 0:
+            iprobables = 'None currently available'
+            return render_template('home.html', frequency=frequency, comments=comments, iprobables=iprobables, end_result=end_result)
         else:
-            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, end_result=end_result)
+            return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
 
     return render_template('home.html')
     
@@ -352,7 +323,6 @@ def hundred():
         # Getting things ready
         end_result1 = [];end_result2 = []
         probables = []
-        probables_01 = []
 
         for url in extractor.gen_urls(str(gen1[0])):
             end_result1.append(url)
@@ -370,50 +340,41 @@ def hundred():
         if end_result[2] == all:
             frequency=frequency+1   
     if frequency == 1: 
-        frequency = '20%'
+        frequency = 20
         comments = "This text doesn't seem to be plagirised.\nYou can try entering a longer length of text."
     elif frequency == 2:
-        frequency = '40%'
+        frequency = 40
         comments = "There is a high possibility of this text being plagiarised"
     elif frequency == 3:
-        frequency = '60%'
+        frequency = 60
         comments = "Our system detected a lot of plagiarised texts in your content"            
     elif frequency == 4:
-        frequency = '80%'
+        frequency = 80
         comments = "The text has most of it's contents plagiarised"
     elif frequency >= 5:
-        frequency = '100%'
+        frequency = 100
         comments = "Warning!! This text is plagiarised."
     #-------------------------------------------------------------------------------------------------------------------------------------------------frequency $ comments   ~~~~~~Done!
-    try:
-        for guys in end_result:
-            if repeat(guys) != repeat(end_result[2]):
-                probables.append(guys)
-                probables_01.append(guys)
-        probables = probables[0]
-        try:
-            for all in probables_01:
-                if not allowed_images(all):
-                    probables_01 = all
-        except:
-            probables_01 = probables
-    except:
-        probables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
+    probables = []
+    for guys in end_result:
+        if not allowed_images(guys) and repeat(guys) != repeat(end_result[2]) and repeat(guys) not in probables:
+            probables.append(guys)
+            iprobables = None
+        else:
+            iprobables = ' '#-----------------------------------------------------------------------------------------------------------------probables    ~~~~~Done!
     # Check for valid result
     try:
         end_result = end_result[2]
-        print(end_result)	#-------------------------------------------------------------------------------------------------------------------------end_result     ~~~~~~~~Done!
+	#-------------------------------------------------------------------------------------------------------------------------end_result     ~~~~~~~~Done!
     except:
         end_result = "Some scrambled texts gotten, hence, no result found. \nPlease check your input and try again."
-        frequency = '0%'	#-----------------------------exception 
+        frequency = 0	#-----------------------------exception 
 
-    if probables == '' or probables == ' ' or allowed_images(probables) or allowed_images(probables_01):
+    if probables == '' or probables == ' ' or allowed_images(probables):
         probables = 'None currently available'
-        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
-    elif probables == probables_01:
-        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
+        return render_template('home.html', frequency=frequency, comments=comments, iprobables=probables, end_result=end_result)
     else:
-        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, probables_01=probables_01, end_result=end_result)
+        return render_template('home.html', frequency=frequency, comments=comments, probables=probables, end_result=end_result)
 
 if __name__ == '__main__':
     app.run()

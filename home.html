@@ -15,8 +15,20 @@
         .btn btn-success btn-md,.btn btn-success,p,.lead,input,a,button,.b{
             font-family: 'Josefin Sans', sans-serif;
         }
-        body,.span{
+        @media screen and (max-width: 900px) {
+          body{
+            padding-right: 18%;
+            padding-left: 18%;
+          }
+        }
+        body{
             background-color: ghostwhite;
+            color: black;
+            padding-right: 18%;
+            padding-left: 18%;
+        }
+        .span{
+          background-color: ghostwhite;
             color: black;
         }
         #text{
@@ -24,7 +36,7 @@
             border-radius: 7px;
             background-color: transparent;
             color: #fff;
-            font-size: 0.8em;
+            font-size: 0.9em;
             font-family: 'Josefin Sans', sans-serif;
         }
         span,.card-body{
@@ -35,10 +47,37 @@
         .p,.card-title{
             font-size: 1.4em; color: white;
         }
+        #row{
+          margin: 1em; 
+          border: 1px solid #0fbcf9; 
+          padding: 7px; 
+          border-radius: 7px; 
+          color: white; 
+          font-size: 0.9em; 
+          overflow: hidden;
+          white-space: initial;
+        }
+        #row::selection, #end_r::selection{
+          background: #487383;
+        }
+        @media screen and (max-width: 600px) {
+          body{
+            padding: 0%;
+          }
+          body{
+            padding: 0%;
+          }
+          #top-div{
+            padding-left: 0.8rem;
+            padding-right: 0.8rem;
+          }
+          
+        }
+
     </style>
     <title>Plagiarism Checker</title>
 </head>
-<body style="padding-left: 18%; padding-right: 18%;">
+<body>
     <!-------------------------------------------------|  GREETINGS  |-------------------------------------------------------------------->
     <div class="container mb-0">
       {% if connection_problem %}
@@ -57,7 +96,7 @@
         </button>
       </div>
       {% endif %}
-    <div class="jumbotron mt-4 pt-6 pb-4 mb-2 bg-warning rounded-bottom">
+    <div class="jumbotron mt-4 pt-6 pb-4 mb-2 bg-warning rounded-bottom" id="top-div">
         <h1 class="display-4" style="font-size: 4.3em;">Plagiarism Checker</h1>
         <p class="lead" style="font-family: 'Amatic SC', cursive; letter-spacing: 3px; font-weight: bold;">“When a thing has been said and said well, have no scruple. Take it and copy it.” <b class="b"> ― Anatole France</b></p>
         <hr class="my-4"> 
@@ -90,8 +129,8 @@
       {% if end_result or probables or comments or frequency %}
       <div class="jumbotron bg-primary mb-6">
         <div class="dotted-container" style="border-radius: 10px; margin-top: 2em;"><p style="font-family: 'Courier New', Courier, monospace; font-size: 1.8em; color: white; font-family: 'Caveat', cursive;"><b>Search Results:</b></p>
-        <p class = "text-warning" style="color: white; font-family: 'Josefin Sans', sans-serif; font-size: 0.9em;"> Our systems detected a lot of plagiarised texts from this site:</p>
-      <p style="margin: 1em; border: 1px solid #0fbcf9; padding: 7px; border-radius: 7px; color: white; font-size: 0.8em;">{{ end_result }}</p></div>
+        <p class = "text-warning" style="color: white; font-family: 'Josefin Sans', sans-serif; font-size: 0.9em;"> {% if frequency != 0 %} Our systems detected{% if frequency <= 40 %} a few {% endif %}{% if frequency == 60 %} a number of {% endif %}{% if frequency > 80 %} a lot of {% endif %}plagiarised texts from this site:{% endif %}</p>
+      <p contenteditable id="end_r" style="margin: 1em; border: 1px solid #0fbcf9; padding: 7px; border-radius: 7px; color: white; font-size: 0.8em;">{{ end_result }}</p></div>
       <p class="p"><b>Probables: </b></p>
 
       <p>
@@ -102,30 +141,23 @@
           <div class="collapse multi-collapse" id="multiCollapseExample5">
             <div class="card card-body bg-transparent">
                 
-                <div class="row" id="row" style="margin: 1em; border: 1px solid #0fbcf9; padding: 7px; border-radius: 7px; color: white; font-size: 0.8em;">
-         <!--           {% if probables %}
-
-                    {% for all in probables %}
+                <div contenteditable class="row" id="row">
+                   
+                      {% if iprobables %}
+                          {{ iprobables }}
+                      {% elif probables %}
+                        {% for all in probables %}                    
+                          {{ all }}<br>
+                        {% endfor %}
+                      {% endif %}
                     
-                    {% print(all) %}
-
-                    {% endfor %}
-
-                    {% endif %}
-         -->
-                  {{ probables }}<br/>
-                  {% if probables_01 %}
-                  {{ probables_01 }}<br/>
-                  {% endif %}
-                  {% if probables_02 %}
-                  {{ probables_02 }}<br/>
-                  {% endif %}
+         
             </div>
           </div>
         </div>
         </div>
       </div>
-      <p class="p"><b>Comments: </b></p><span>{{ comments }}</span><p class="p"><b>Frequency: </b></p><span>{{ frequency }}</span>
+      <p class="p"><b>Comments: </b></p><span>{{ comments }}</span><p class="p"><b>Frequency: </b></p><span>{{ frequency }}&percnt;</span>
       {% endif %}
       {% if error_message or too_long %}
       <div class="jumbotron bg-primary mb-6">
