@@ -88,6 +88,14 @@
         </button>
       </div>
       {% endif %}
+      {% if file_type_error %}
+      <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif; position: absolute;">
+        <strong>An error occurred!</strong> Please check your file type and try again.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endif %}
       {% if end_result %}
       <div class="alert alert-success alert-dismissible fade show mt-2" role="alert" style="font-family: 'Josefin Sans', sans-serif; position: absolute;">
         <strong>All done!</strong> Please check your results below.
@@ -129,7 +137,7 @@
       {% if end_result or probables or comments or frequency %}
       <div class="jumbotron bg-primary mb-6">
         <div class="dotted-container" style="border-radius: 10px; margin-top: 2em;"><p style="font-family: 'Courier New', Courier, monospace; font-size: 1.8em; color: white; font-family: 'Caveat', cursive;"><b>Search Results:</b></p>
-        <p class = "text-warning" style="color: white; font-family: 'Josefin Sans', sans-serif; font-size: 0.9em;"> {% if frequency != 0 %} Our systems detected{% if frequency <= 40 %} a few {% endif %}{% if frequency == 60 %} a number of {% endif %}{% if frequency > 80 %} a lot of {% endif %}plagiarised texts from this site:{% endif %}</p>
+        {% if frequency %}<p class = "text-warning" style="color: white; font-family: 'Josefin Sans', sans-serif; font-size: 0.9em;"> {% if frequency != 0 %} Our systems detected{% if frequency <= 40 %} a few {% endif %}{% if frequency == 60 %} a number of {% endif %}{% if frequency > 80 %} a lot of {% endif %}plagiarised texts from this site:{% endif %}</p>{% endif %}
       <p contenteditable id="end_r" style="margin: 1em; border: 1px solid #0fbcf9; padding: 7px; border-radius: 7px; color: white; font-size: 0.8em;">{{ end_result }}</p></div>
       <p class="p"><b>Probables: </b></p>
 

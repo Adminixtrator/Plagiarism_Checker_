@@ -74,12 +74,7 @@ def filehandle():
             txt = tt.process(filename).decode('utf-8')
             txt = [line.replace('\t', ' ') for line in txt.split('\n') if line]
             txt = ' '.join(txt)
-            '''try:
-                txt = tt.process('filename')
-            except:
-                error_message = "An error occured! Please check your file type and try again."
-                os.remove('./'+filename)
-                return render_template('home.html', error_message=error_message, probables='None currently available')'''
+            
             alternative = txt
                 # Handler length of words
             if len(str(txt).split()[0::]) > 100:
@@ -179,7 +174,7 @@ def filehandle():
 
         
         else:
-            return render_template('home.html', end_result="An error occured! Please check your file type and try again.")
+            return render_template('home.html', file_type_error=True)
 
     return render_template('home.html')
 
